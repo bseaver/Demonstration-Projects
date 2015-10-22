@@ -23,12 +23,15 @@
          font-family: sans-serif;
       }
 
-      .addressContainer {
+      body {
          background-image: url("background2b.jpg");
          background-size: cover;
          background-position: center;
          height: 100%;
          width: 100%;
+      }
+
+      .addressContainer {
       }
 
       .required {
@@ -122,12 +125,23 @@
 
       // State variables: 
       var onFindClick = false, waitOnService = false, matchedAddress = "";
-      var processingError = false, errorMessage = "", inputs = "", addressData = "";
+      var processingError = false, errorMessage = "", Zip5 = "", re = /^test(\d+)$/i, inputs = "", addressData = "";
+
+      // Test cases
+      testData = [
+         '<textarea><?xml version="1.0" encoding="UTF-8"?><AddressValidateResponse><Address ID="0"><Error><Number>-2147219401</Number><Source>clsAMS</Source><Description>Address Not Found.  </Description><HelpFile/><HelpContext/></Error></Address></AddressValidateResponse></textarea>',
+         '<textarea><?xml version="1.0" encoding="UTF-8"?><AddressValidateResponse><Address ID="0"><Address2>106 MAIN ST</Address2><City>TRUMANSBURG</City><State>NY</State><Zip5>14886</Zip5><Zip4>3215</Zip4><ReturnText>Default address: The address you entered was found but more information is needed (such as an apartment, suite, or box number) to match to a specific address.</ReturnText></Address></AddressValidateResponse></textarea>',
+         '<textarea style="height:300px;width:500px"><?xml version="1.0" encoding="UTF-8"?><AddressValidateResponse><Address ID="0"><Address1>ISLA VERDE</Address1><Address2>4800 AVE ISLA VERDE</Address2><City>CAROLINA</City><State>PR</State><Zip5>00979</Zip5><Zip4>5441</Zip4></Address></AddressValidateResponse></textarea>',
+         '<textarea style="height:300px;width:500px"><?xml version="1.0" encoding="UTF-8"?><AddressValidateResponse><Address ID="0"><Address2>5192 N COULTER ST</Address2><City>PHILADELPHIA</City><State>PA</State><Zip5>13216</Zip5><Zip4>4207</Zip4></Address></AddressValidateResponse></textarea>'
+      ];
+
+
 
       //stateProcessor();
 
       // State Processing:
       function stateProcessor() {
+         var match, testIndex
 
          // Clicked Find button, hide messages
          if (onFindClick) {
@@ -164,7 +178,38 @@
             }
          }
 
-         // Inputs are valid
+         // Inputs are valid - do we have test data? 
+         // For example: "test2" entered in Zip 5 (ZIP code) field
+         match = Zip5.match(re);
+         if (onFindClick && !waitOnService && match) {
+            // Button click is now handled by test data
+            onFindClick = false;
+
+            // User entered "test" followed by a number which is the test index
+            testIndex = Number(match[1]);
+
+            // If the index is in the range of the test data, process that data,
+            // else supply the empty result
+            addressData = "";
+            if (testIndex >= 0 && testIndex < testData.length) {
+               addressData = testData[testIndex];
+            }
+
+            // Extract any error message
+            extractErrorMessage(addressData);
+
+            // Extract any matched address
+            extractMatchedAddress(addressData);
+
+            // If we found nothing, this is a processing error
+            processingError = (!errorMessage && !matchedAddress);
+
+            // Update our page
+            stateProcessor();
+            return;
+         }
+
+         // Inputs are valid and no test data
          if (onFindClick && !waitOnService) {
             // Button click is now handled
             onFindClick = false;
@@ -172,14 +217,8 @@
             // We are now waiting for the USPS site to get back to us
             waitOnService = true;
 
-            // Comment out next two lines and the one below to not access the USPS and instead just use test data
            $.get("uspsaddressval.php?" + inputs,
                function (addressData) {
-
-// Test data 
-//addressData = '<textarea><?xml version="1.0" encoding="UTF-8"?><AddressValidateResponse><Address ID="0"><Address2>106 MAIN ST</Address2><City>TRUMANSBURG</City><State>NY</State><Zip5>14886</Zip5><Zip4>3215</Zip4><ReturnText>Default address: The address you entered was found but more information is needed (such as an apartment, suite, or box number) to match to a specific address.</ReturnText></Address></AddressValidateResponse></textarea>';
-//addressData = '<textarea><?xml version="1.0" encoding="UTF-8"?><AddressValidateResponse><Address ID="0"><Error><Number>-2147219401</Number><Source>clsAMS</Source><Description>Address Not Found.  </Description><HelpFile/><HelpContext/></Error></Address></AddressValidateResponse></textarea>';
-//addressData = '<textarea style="height:300px;width:500px"><?xml version="1.0" encoding="UTF-8"?><AddressValidateResponse><Address ID="0"><Address1>ISLA VERDE</Address1><Address2>4800 AVE ISLA VERDE</Address2><City>CAROLINA</City><State>PR</State><Zip5>00979</Zip5><Zip4>5441</Zip4></Address></AddressValidateResponse></textarea>';
 
                   // USPS site has gotten back to us 
                   waitOnService = false;
@@ -195,8 +234,9 @@
 
                   // Update our page
                   stateProcessor();
+                  return;
 
-            })  // Comment out this line and two above in order to run test data instead of live data.
+            })  
 
          } // end if inputs are valid
       } // end function stateProcessor()
@@ -205,7 +245,7 @@
       function extractMatchedAddress(addressData) {
          var i = 0, j = 0;
          // Lose any textarea wrapper
-         var str = addressData.replace(/<\/*textarea.*>/g, "");
+         var str = addressData.replace(/<\/?textarea.*?>/g, "");
          // Convert string to xml
          var xml = $.parseXML(str);
 
@@ -292,7 +332,7 @@
 
       function extractErrorMessage(addressData) {
          // Lose any textarea wrapper
-         var str = addressData.replace(/<\/*textarea.*>/g, "");
+         var str = addressData.replace(/<\/?textarea.*?>/g, "");
          // Convert string to xml
          var xml = $.parseXML(str);
          $(xml).find(errorFields[0]).each( 
@@ -312,6 +352,7 @@
             matchedAddress = "";
             errorMessage = "";
             processingError = false;
+            Zip5 = "";
             stateProcessor();
          }
       });
@@ -342,7 +383,7 @@
                case "State":
                   hasState = true; break
                case "Zip5":
-                  hasCity = true; hasState = true; break;
+                  hasCity = true; hasState = true; Zip5 = thisValue; break;
             }
 
 
