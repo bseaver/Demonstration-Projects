@@ -4,8 +4,8 @@
    <meta charset="utf-8" />
    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
    <meta name="viewport" content="width=device-width, initial-scale=1" />
-   <meta name="description" content="Testing PHP Form" />
-   <title>PHP Post Form</title>
+   <meta name="description" content="Address Validation via USPS API" />
+   <title>USPS Address</title>
 
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -58,7 +58,7 @@
                   <a href="http://www.usps.com" target="_blank">www.usps.com</a>
                <p>
                
-               <input type="text" id="Address1"  name="Address1" class="form-control required" 
+               <input type="text" id="Address1"  name="Address1" class="form-control" 
                   placeholder="Street address e.g. 123 Main St" value=""
                >
 
@@ -66,16 +66,16 @@
                   placeholder="Second line of street address (when applicable)" value=""
                >
 
-               <input type="text" id="City"  name="City" class="form-control required" 
+               <input type="text" id="City"  name="City" class="form-control" 
                   placeholder="City e.g. Albany" value=""
                >
 
-               <input type="text" id="State"  name="State" class="form-control required" 
+               <input type="text" id="State"  name="State" class="form-control" 
                   placeholder="2 letter State e.g. NY" value=""
                >
 
                <input type="text" id="Zip5"  name="Zip5" class="form-control" 
-                  placeholder="5 digit ZipCode (usually not required)" value=""
+                  placeholder="5 digit ZipCode" value=""
                >
 
                <br>
@@ -89,11 +89,10 @@
                <p id="matchedAddress"></p>
             </div>
 
-            <!-- USPS: NO ADDRESS FOUND-->
+            <!-- USPS: NO ADDRESS FOUND OR UNDELIVERABLE-->
+
             <div id="badAddress" class="alert alert-warning" role="alert">
                <p id="errorDescription"></p><br>
-               <p>In order for the U.S. Postal Service to match and validate a mailing address 
-                  we'll need a fairly accurate street address, city and state.</p>
             </div>
 
             <!-- WEBSITE FAILURE ALERT -->
@@ -130,11 +129,9 @@
       // State Processing:
       function stateProcessor() {
 
-         // Clicked Find button, hide messages from bottom up
+         // Clicked Find button, hide messages
          if (onFindClick) {
-            $("#processingError").fadeOut();
-            $("#badAddress").fadeOut();
-            $("#goodAddress").fadeOut();
+            $(".alert").hide();
          }
 
          // Not processing, show messages from top down
@@ -162,7 +159,7 @@
             onFindClick = validateInputs();
 
             // Show any message
-            if (errorMessage) {
+            if (!onFindClick) {
                stateProcessor();
             }
          }
@@ -224,7 +221,6 @@
             );
          };
 
-
          // Format Address
          matchedAddress = "";
          for (i = 0; i < addressFields.length; i++) {
@@ -279,8 +275,18 @@
                   }
                   break;
             } // end switch
+         } // for all address fields
 
-         };
+         // Detect undeliverable address by finding Zip5 but not Zip4
+         if (addressVal[addressFields.indexOf("Zip5")] && !addressVal[addressFields.indexOf("Zip4")]) {
+            // Move matchedAddress data to the error message
+            errorMessage += matchedAddress + "<br><br>";
+            errorMessage += "This address is not recognized by the U.S. Postal Service as an address they serve." +
+             " Mail sent to this address may be returned.<br>";
+            matchedAddress = "";
+         }
+
+         
       }
 
 
@@ -334,7 +340,9 @@
                case "City":
                   hasCity = true; break;
                case "State":
-                  hasState = true;
+                  hasState = true; break
+               case "Zip5":
+                  hasCity = true; hasState = true; break;
             }
 
 
@@ -348,18 +356,17 @@
          // complete validation
          errorMessage = "";
          if (!hasAddress) {
-            errorMessage += "<br>Missing Address.";
+            errorMessage += "<br>Missing Street Address.";
          }
          if (!hasCity) {
-            errorMessage += "<br>Missing City.";
+            errorMessage += "<br>Missing City (or ZIP code).";
          }
          if (!hasState) {
-            errorMessage += "<br>Missing State.";
+            errorMessage += "<br>Missing State (or ZIP code).";
          }
          if (errorMessage) {
             errorMessage = "Need to fill in some field(s):" + errorMessage + "<br><br>";
          }
-
          return (!errorMessage);
       } // end function validateInputs()
 
