@@ -24,7 +24,7 @@
       }
 
       .weatherContainer {
-         background-image: url("//dl.dropboxusercontent.com/u/54537955/IMG_20150530_133139.jpg");
+         background-image: url("../../images/IMG_20150530_133139.jpg");
          background-size: cover;
          background-position: center;
          height: 100%;
