@@ -6,9 +6,9 @@
 
 // Database connection
 $servername = "localhost";
-$username = "*****";
-$password = "*****";
-$dbname = "*****";
+$username = "root";
+$password = "root";
+$dbname = "scotchbox";
 
 
 // Create connection
