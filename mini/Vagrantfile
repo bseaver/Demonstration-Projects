@@ -59,11 +59,13 @@
 # 2. Put this file (named Vagrantfile no extension) into an empty test folder on your PC
 # 3. Open a CMD window and CD (change directory) to that new test folder
 # 4. At the CMD prompt in that folder issue the command: Vagrant up
+#    Note: This will take several minutes and there will be quite a few messages that 
+#    scroll by in the command window.
 # 5. If all seemed to work out so far do the following tests:
 #
 # Test 1: Verify you receive a web page about key value maintanance at http://192.168.33.10/
 # Test 2: Verify you can edit the website on your PC from the test folder's public/index.php file
-# Test 1: Verify the Scotch Box page is up at by pasting http://192.168.33.10/scotchbox into your browser
+# Test 3: Verify the Scotch Box page is up at by pasting http://192.168.33.10/scotchbox into your browser
 # --------------------------------------------------------------
 
 
