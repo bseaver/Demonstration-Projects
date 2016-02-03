@@ -1,0 +1,155 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# --------------------------------------------------------------
+# What is this Vagrantfile file?
+# ------------------------------
+# This Vagrant file is input to the Vagrant software.  See: https://www.vagrantup.com .
+# The instructions in this file cause Vagrant to create a virtual web server on the host PC and load  
+# web pages onto it from GitHub. It demonstrates how one can bring up a server with a data driven website 
+# from a single Vagrantfile.
+#
+#
+# What happens when Vagrant is run with this file?
+# ------------------------------------------------
+# Vagrant will create a pre-configured virtual linux server with a handy LAMP stack already installed.
+# Also, this file has a shell script that will fetch two web pages from GitHub.
+# The home page will be a miniature data driven website that enables the display and maintanence of 
+# key value pairs. The scotchbox page will describe the features of the server.
+#
+#
+# Tell me more about Vagrant!
+# ---------------------------
+# Besides helping to automate the installation and configuration of servers, Vagrant makes it possible to
+# to install identically configured virtual servers on developer's, tester's and administrator's PCs.
+# Vagrant supports bi-directional syncronized folders with the PC and the virtual server so that development 
+# and testing may conviently be done using PC based editors - while the server is running.
+#
+#
+# How was this Vagrantfile developed?
+# ------------------------------------
+# It was developed on a two year old midrange Lenovo Intel i5 laptop now running Windows 10. 
+#
+# The starting point for this file was the Vagrantfile from Scotch Box 2.5 - see: 
+# https://github.com/scotch-io/scotch-box/blob/master/Vagrantfile
+# For more information about Scotch Box see:
+# https://scotch.io/bar-talk/announcing-scotch-box-2-5
+#
+# The Scotch Box Vagrantfile was then modified by adding the inline shell script below.  The script
+# clones source code from GitHub into a /tmp directory on the virtual server.
+# It then copies a selected web page file from the /tmp/<git user> directory up to the ...www/public 
+# directory on the virtual web server.
+#
+# The script was iteratively edited and tested using the command: vagrant provision --provision-with shell
+# Development and testing was done while:
+#   - This file was open in my source editor
+#   - The Virtual server was up and running and able to serve web pages (command: vagrant up)
+#   - A ssh session was open on the virtual box so I could view and delete files for testing (command: vagrant ssh)
+#   - A file manager window on my PC was open to the syncronized public folder to view, modify and delete files for testing
+# The point is that script development in the Vagrantfile virtual server environment is very user friendly!
+#
+# The single page, data driven website this brings up was written especially for this project.
+# The website simply displays and maintains a set of key value pairs.  
+# See source code at: https://github.com/bseaver/Demonstration-Projects/tree/master/mini
+#
+#
+# How do I run this file and bring up the website?
+# ------------------------------------------------
+# 1. Work through the prerequesites in the getting started guide at https://www.vagrantup.com
+# 2. Put this file (named Vagrantfile no extension) into an empty test folder on your PC
+# 3. Open a CMD window and CD (change directory) to that new test folder
+# 4. At the CMD prompt in that folder issue the command: Vagrant up
+# 5. If all seemed to work out so far do the following tests:
+#
+# Test 1: Verify you receive a web page about key value maintanance at http://192.168.33.10/
+# Test 2: Verify you can edit the website on your PC from the test folder's public/index.php file
+# Test 1: Verify the Scotch Box page is up at by pasting http://192.168.33.10/scotchbox into your browser
+# --------------------------------------------------------------
+
+
+# Inline Shell Script
+# -------------------
+# The script below does the following on the guest virtual scotch box (not your PC):
+# 1. Make and change to the following directory: /tmp/bseaver
+# 2. Get demonstration code via GitHub
+# 3. Copy the mini demonstration folder into the virtual scotch box's website
+# 4. With the delete_first="false" parameter setting it avoids overwriting files in case one has modified them
+
+$script = <<SCRIPT
+# First, let user know initial Vagrant Shell Script error is not a concern
+echo 'You can ignore the above red line: "stdin: is not a tty".'
+echo "(It is a known non-issue. See https://github.com/mitchellh/vagrant/issues/1673)"
+
+
+# Define function to install files on virtual server from GitHub
+function install_files_from_github () {
+  local delete_first="${1}"
+  local destpath="${2}"
+  local filename="${3}"
+  local workpath="${4}"
+  local sourcepath="${5}"
+  local gitrepo="${6}"
+
+  if [ "$delete_first" = "true" ]; then
+    echo "Deleting ""$workpath"" ..."
+    rm -R -f "$workpath" 
+    echo "Deleting ""$destpath$filename"" ..."
+    rm -R -f "$destpath$filename" 
+  fi
+
+
+  # Dont overwrite destination file (it could be modified)
+  if [ -e "$destpath$filename" ]; then
+    echo "$destpath$filename"" - already exists. Not overwriting."
+  else
+
+    # Don't overwrite source file either (it too could be modified)
+    if [ ! -e "$workpath$sourcepath$filename" ]; then
+      echo "Changing to ""$workpath"" directory ..."
+      mkdir -p "$workpath"
+      cd "$workpath"
+
+      echo "Downloading files from ""$gitrepo"" ..."
+      git clone "$gitrepo"
+    fi
+
+    echo "Copying downloaded web page up to website directory ..."
+    mkdir -p "$destpath"
+    cp -v "$workpath$sourcepath$filename" "$destpath"
+  fi
+}
+
+
+# Function call to install mini data driven key value website
+delete_first="false"
+destpath="/var/www/public/"; filename="index.php"
+workpath="/tmp/bseaver"; sourcepath="/Demonstration-Projects/mini/"
+gitrepo="https://github.com/bseaver/Demonstration-Projects.git"
+echo " "
+install_files_from_github ${delete_first} ${destpath} ${filename} ${workpath} ${sourcepath} ${gitrepo}
+
+
+# Function call to install Scotch Box home page
+delete_first="false"
+destpath="/var/www/public/scotchbox/"; filename="index.php"
+workpath="/tmp/scotch-io"; sourcepath="/scotch-box/public/"
+gitrepo="https://github.com/scotch-io/scotch-box.git"
+echo " "
+install_files_from_github ${delete_first} ${destpath} ${filename} ${workpath} ${sourcepath} ${gitrepo}
+
+SCRIPT
+
+
+Vagrant.configure("2") do |config|
+
+    config.vm.box = "scotch/box"
+    config.vm.network "private_network", ip: "192.168.33.10"
+    config.vm.hostname = "scotchbox"
+    config.vm.synced_folder ".", "/var/www", :mount_options => ["dmode=777", "fmode=666"]
+    
+    # Optional NFS. Make sure to remove other synced_folder line too
+    #config.vm.synced_folder ".", "/var/www", :nfs => { :mount_options => ["dmode=777","fmode=666"] }
+
+    # Install data driven website on the scotch box
+    config.vm.provision "shell", inline: $script
+end
