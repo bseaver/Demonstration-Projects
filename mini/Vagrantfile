@@ -43,8 +43,9 @@
 # The script was iteratively edited and tested using the command: vagrant provision --provision-with shell
 # Development and testing was done while:
 #   - This file was open in my source editor
-#   - The Virtual server was up and running and able to serve web pages (command: vagrant up)
-#   - A ssh session was open on the virtual box so I could view and delete files for testing (command: vagrant ssh)
+#   - The virtual server was up and running and able to serve web pages (command: vagrant up)
+#   - A browser window (Chrome) was open to the virtual server http://192.168.33.10
+#   - A ssh session was open on the virtual server so I could view and delete files for testing (command: vagrant ssh)
 #   - A file manager window on my PC was open to the syncronized public folder to view, modify and delete files for testing
 # The point is that script development in the Vagrantfile virtual server environment is very user friendly!
 #
@@ -55,7 +56,7 @@
 #
 # How do I run this file and bring up the website?
 # ------------------------------------------------
-# 1. Work through the prerequesites in the getting started guide at https://www.vagrantup.com
+# 1. Work through the software installation prerequesites in the getting started guide at https://www.vagrantup.com
 # 2. Put this file (named Vagrantfile no extension) into an empty test folder on your PC
 # 3. Open a CMD window and CD (change directory) to that new test folder
 # 4. At the CMD prompt in that folder issue the command: Vagrant up
