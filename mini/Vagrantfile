@@ -45,7 +45,7 @@
 #   - This file was open in my source editor
 #   - The virtual server was up and running and able to serve web pages (command: vagrant up)
 #   - A browser window (Chrome) was open to the virtual server http://192.168.33.10
-#   - A ssh session was open on the virtual server so I could view and delete files for testing (command: vagrant ssh)
+#   - An ssh session was open on the virtual server to list and delete files for testing (command: vagrant ssh)
 #   - A file manager window on my PC was open to the syncronized public folder to view, modify and delete files for testing
 # The point is that script development in the Vagrantfile virtual server environment is very user friendly!
 #
