@@ -1,18 +1,18 @@
 ========================================================== 
-Fri 02/12/2016 11:33:03.33 portsopen_auto_test 
+Fri 02/12/2016 13:46:44.88 portsopen_auto_test 
  
-Test 1: (Self test should generate one Passed and one Failed): 
+Test 1 (Self test should generate one Passed and one Failed): 
 Command: help > test_output.tmp 
 ---------------------------------------------------------- 
 DOS Help (Passed expected) test_output.tmp includes lines with "ATTRIB" and "attributes": Passed 
 DOS Help (Failed expected) test_output.tmp includes lines with "Nothing" and "no how!": Failed 
  
-Test 2: Nmap installed 
+Test 2 (Nmap installed) 
 Command: nmap -h > test_output.tmp 
 ---------------------------------------------------------- 
 Test 2 test_output.tmp includes lines with "nmap" and ".org": Passed 
  
-Test 3: Close ports with portsopen.bat 
+Test 3 (Close ports with portsopen.bat) 
 Command: call portsopen.bat close 192.168.33.10 80 99 111 
 Command: nmap -p 80,99,111 192.168.33.10 > test_output.tmp 
 ---------------------------------------------------------- 
@@ -20,9 +20,9 @@ Test 3a test_output.tmp includes lines with " closed " and "80": Passed
 Test 3b test_output.tmp includes lines with " closed " and "99": Passed 
 Test 3c test_output.tmp includes lines with " closed " and "111": Passed 
  
-Test 4: Turn on ports via commands sent by standard input 
-     .1 Verify 80 and 111 are open and 99 is closed according to nmap 
-     .2 Verify portsopen.log has 80 and 111 are "now open" 99 is "still closed" 
+Test 4 (Open ports via standard input) 
+     4.1 Verify 80 and 111 are open and 99 is closed according to nmap 
+     4.2 Verify 80 and 111 are "now open" and 99 is "still closed" according to portsopen.log 
 Command: call :erasefile portsopen.log 
 Command: call :standard_input "192.168.33.10 80" "192.168.33.10 99 111" 
 Command: nmap -p 80,99,111 192.168.33.10 > test_output.tmp 
@@ -30,9 +30,17 @@ Command: nmap -p 80,99,111 192.168.33.10 > test_output.tmp
 Test 4.1.a test_output.tmp includes lines with " open " and "80": Passed 
 Test 4.1.b test_output.tmp includes lines with " closed " and "99": Passed 
 Test 4.1.c test_output.tmp includes lines with " open " and "111": Passed 
-Test 4.2.a portsopen.log includes lines with "now open" and "80": Passed 
-Test 4.2.b portsopen.log includes lines with "still closed" and "99": Passed 
-Test 4.2.b portsopen.log includes lines with "now open" and "111": Passed 
+Test 4.2.a   portsopen.log includes lines with "now open" and "80": Passed 
+Test 4.2.b   portsopen.log includes lines with "still closed" and "99": Passed 
+Test 4.2.c   portsopen.log includes lines with "now open" and "111": Passed 
+ 
+Test 5 (Verify ports are already open) 
+Command: call portsopen.bat open 192.168.33.10 80 99 111 
+Command: nmap -p 80,99,111 192.168.33.10 > test_output.tmp 
+---------------------------------------------------------- 
+Test 5.a portsopen.log includes lines with "already open" and "80": Passed 
+Test 5.b portsopen.log includes lines with "still closed" and "99": Passed 
+Test 5.c portsopen.log includes lines with "already open" and "111": Passed 
  
 End Automated Test 
 ========================================================== 

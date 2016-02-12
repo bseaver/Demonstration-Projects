@@ -1,11 +1,11 @@
 ========================================================= 
-Fri 02/12/2016  11:33:34.01 
+Fri 02/12/2016  13:47:19.93 
 Command: portsopen.bat 192.168.33.10 80 
  
 Port 80 on 192.168.33.10 is now open 
  
 ========================================================= 
-Fri 02/12/2016  11:33:47.38 
+Fri 02/12/2016  13:47:33.19 
 Command: portsopen.bat 192.168.33.10 99 111 
  
 No command scripted for host 192.168.33.10 port 99 
@@ -13,4 +13,16 @@ No command scripted for host 192.168.33.10 port 99
 Port 99 on 192.168.33.10 is still closed 
  
 Port 111 on 192.168.33.10 is now open 
+ 
+========================================================= 
+Fri 02/12/2016  13:47:50.22 
+Command: portsopen.bat open 192.168.33.10 80 99 111 
+ 
+Port 80 on 192.168.33.10 is already open 
+ 
+No command scripted for host 192.168.33.10 port 99 
+ 
+Port 99 on 192.168.33.10 is still closed 
+ 
+Port 111 on 192.168.33.10 is already open 
  

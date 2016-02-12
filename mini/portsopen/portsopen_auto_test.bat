@@ -13,11 +13,11 @@ setlocal
 ::   3. Start by attempting to close all ports with direct call to portsopen.bat
 ::      Verify all above ports closed according to nmap utility
 ::
-::   4. Attempt to turn on each port with standard input to stdin_to_portsopen.bat
+::   4. Attempt to open each port with standard input to stdin_to_portsopen.bat
 ::      .1 Verify 80 and 111 are open and 99 is closed according to nmap
 ::      .2 Verify portsopen.log has 80 and 111 are "now open" 99 is "still closed"
 ::
-::   5. Attempt to turn on each port with direct call to portsopen.bat
+::   5. Attempt to open each port with direct call to portsopen.bat
 ::      Verify portsopen.log 80 and 11 are "already open"
 ::  
 
@@ -36,10 +36,9 @@ echo %DATE% %TIME% portsopen_auto_test >> %test_log%
 echo. >> %test_log%
 
 
-
 echo.
 echo Performing Test 1 (Self test)...
-echo Test 1: (Self test should generate one Passed and one Failed): >> %test_log%
+           echo Test 1 (Self test should generate one Passed and one Failed): >> %test_log%
 call :self_test
 if %errorlevel% gtr 0 exit /b 1
 echo. >> %test_log%
@@ -48,9 +47,11 @@ echo. >> %test_log%
 
 echo.
 echo Performing Test 2 (Nmap installed)...
-echo Test 2: Nmap installed >> %test_log%
+           echo Test 2 (Nmap installed) >> %test_log%
+
 echo Command: nmap -h ^> %test_output% >> %test_log%
-nmap -h > %test_output%
+              nmap -h  > %test_output%
+
 echo ---------------------------------------------------------- >> %test_log%
 call :verify "Test 2" %test_output% "nmap" ".org"
 echo. >> %test_log%
@@ -59,12 +60,13 @@ echo. >> %test_log%
 
 echo.
 echo Performing Test 3 (Close ports with portsopen.bat)...
-echo Test 3: Close ports with portsopen.bat >> %test_log%
+           echo Test 3 (Close ports with portsopen.bat) >> %test_log%
+
 echo Command: call portsopen.bat close %test_host% 80 99 111 >> %test_log%
-call portsopen.bat close %test_host% 80 99 111
+              call portsopen.bat close %test_host% 80 99 111
 
 echo Command: nmap -p 80,99,111 %test_host% ^> %test_output% >> %test_log%
-nmap -p 80,99,111 %test_host% > %test_output%
+              nmap -p 80,99,111 %test_host%  > %test_output%
 
 echo ---------------------------------------------------------- >> %test_log%
 call :verify "Test 3a" %test_output% " closed " "80"
@@ -75,29 +77,49 @@ echo. >> %test_log%
 
 
 echo.
-echo Performing Test 4 (Turn on ports via standard input)...
-echo Test 4: Turn on ports via commands sent by standard input >> %test_log%
-echo      .1 Verify 80 and 111 are open and 99 is closed according to nmap >> %test_log%
-echo      .2 Verify portsopen.log has 80 and 111 are "now open" 99 is "still closed" >> %test_log%
+echo Performing Test 4 (Open ports via standard input)...
+           echo Test 4 (Open ports via standard input) >> %test_log%
+           echo      4.1 Verify 80 and 111 are open and 99 is closed according to nmap >> %test_log%
+           echo      4.2 Verify 80 and 111 are "now open" and 99 is "still closed" according to portsopen.log >> %test_log%
+
 echo Command: call :erasefile portsopen.log >> %test_log%
-call :erasefile portsopen.log
+              call :erasefile portsopen.log
 
 echo Command: call :standard_input "%test_host% 80" "%test_host% 99 111" >> %test_log%
-call :standard_input "%test_host% 80" "%test_host% 99 111"
+              call :standard_input "%test_host% 80" "%test_host% 99 111"
 
 echo Command: nmap -p 80,99,111 %test_host% ^> %test_output% >> %test_log%
-nmap -p 80,99,111 %test_host% > %test_output%
+              nmap -p 80,99,111 %test_host%  > %test_output%
 
 echo ---------------------------------------------------------- >> %test_log%
 call :verify "Test 4.1.a" %test_output% " open " "80"
 call :verify "Test 4.1.b" %test_output% " closed " "99"
 call :verify "Test 4.1.c" %test_output% " open " "111"
-call :verify "Test 4.2.a" portsopen.log "now open" "80"
-call :verify "Test 4.2.b" portsopen.log "still closed" "99"
-call :verify "Test 4.2.b" portsopen.log "now open" "111"
+call :verify "Test 4.2.a  " portsopen.log "now open" "80"
+call :verify "Test 4.2.b  " portsopen.log "still closed" "99"
+call :verify "Test 4.2.c  " portsopen.log "now open" "111"
+echo. >> %test_log%
+
+
+
+echo.
+echo Performing Test 5 (Verify ports are already open)...
+           echo Test 5 (Verify ports are already open) >> %test_log%
+
+echo Command: call portsopen.bat open %test_host% 80 99 111 >> %test_log%
+              call portsopen.bat open %test_host% 80 99 111
+
+echo Command: nmap -p 80,99,111 %test_host% ^> %test_output% >> %test_log%
+              nmap -p 80,99,111 %test_host%  > %test_output%
+
+echo ---------------------------------------------------------- >> %test_log%
+call :verify "Test 5.a" portsopen.log "already open" "80"
+call :verify "Test 5.b" portsopen.log "still closed" "99"
+call :verify "Test 5.c" portsopen.log "already open" "111"
+echo. >> %test_log%
+
 
 :: End log file
-echo. >> %test_log%
 echo End Automated Test >> %test_log%
 echo ========================================================== >> %test_log%
 
@@ -188,7 +210,7 @@ setlocal
 :: DOS help does include "ATTRIB"
 :: but does not include "XXXYYYZZZ"
 echo Command: help ^> %test_output% >> %test_log%
-help > %test_output%
+              help  > %test_output%
 
 :: Our log should have Passed in it
 echo ---------------------------------------------------------- >> %test_log%

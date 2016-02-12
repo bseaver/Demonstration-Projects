@@ -139,10 +139,10 @@ setlocal
 echo.
 echo -------------------------------------------------------
 echo Notes on %1: 
-echo    1. This DOS batch script requires installation of nmap
+echo    1. This DOS batch script requires installation of Nmap
 echo       See: https://nmap.org
 echo.
-echo    2. Edit the bottom section of this to configure commands that 
+echo    2. Edit this %1 script to configure commands that 
 echo       start and stop servers on your host to open or close ports.
 echo.
 echo    3. Output is sent to the screen and also to %~n0.log
@@ -154,17 +154,12 @@ echo.
 echo rem  Make sure web server is up at 192.168.33.10 (port 80 is open)
 echo %1 192.168.33.10 80
 echo.
-echo rem  Make sure web server and Remote Procedure Calls are up
-echo rem  (both ports 80 and 111 on open)
+echo rem  Make sure Web server and Remote Procedure Calls are up
+echo rem  (ports 80 and 111 are open)
 echo %1 192.168.33.10 80 111
 echo.
-echo rem  Test this script
-echo rem  ===============================
-echo %1 open  192.168.33.10 80 99 111
-echo %1 close 192.168.33.10 80 99 111
-echo %1 close 192.168.33.10 80 99 111
-echo %1 open  192.168.33.10 80 99 111
-echo %1 open  192.168.33.10 80 99 111
+echo rem  Stop Remote Procedure service (port 111 is closed)
+echo %1 close 192.168.33.10 111
 echo -------------------------------------------------------
 echo.
 exit /b 0
